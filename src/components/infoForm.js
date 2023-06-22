@@ -8,9 +8,21 @@ import {
   Radio
 } from "@material-tailwind/react";
 import { useFormik } from "formik";
+import * as Yup from 'yup';
 
 
 const InfoForm = () => {
+
+  const valSchema = Yup.object().shape({
+    username: Yup.string().max(20).min(6).required("username is required"),
+    email: Yup.string().email().required("email is required"),
+    hobby: Yup.array().min(1, "Hobby is required").required("hobby is required"),
+    country: Yup.string().required("country is required"),
+    gender: Yup.string().required("gender is required"),
+    msg: Yup.string().required('message is required'),
+    image: Yup.mixed().required('image is required').test('File_type', 'invalid', (val) => val && ['image/png'].includes(val.type))
+
+  })
 
 
   const formik = useFormik({
@@ -26,11 +38,11 @@ const InfoForm = () => {
 
     },
     onSubmit: (val) => {
-
       console.log(val)
+    },
 
+    validationSchema: valSchema
 
-    }
   });
 
 
@@ -57,33 +69,79 @@ const InfoForm = () => {
         Enter your Info
       </Typography>
       <form onSubmit={formik.handleSubmit} className="">
-        <div className="mb-4 flex flex-col gap-6">
+        <div className="mb-4 flex flex-col gap-3">
 
-          {/* name should be whatever that is inside formik */}
-          <Input onChange={formik.handleChange} value={formik.values.username} name="username" size="lg" label="Name" type="text" />
-          <Input onChange={formik.handleChange} value={formik.values.email} name="email" size="lg" label="Email" type="email" />
+          <div>
+            {/* name should be whatever that is inside formik */}
+            <Input
+              onChange={formik.handleChange}
+              value={formik.values.username}
+              name="username"
+              size="lg"
+              label="Name"
+              type="text"
+              error={formik.errors.username && formik.touched.username ? true : false}
+            />
+            {formik.errors.username && formik.touched.username && <h1 className="text-red-600" >{formik.errors.username}</h1>}
+
+          </div>
+
+          <div>
+            <Input
+              onChange={formik.handleChange}
+              value={formik.values.email}
+              name="email"
+              size="lg"
+              label="Email"
+              type="email"
+              error={formik.errors.email && formik.touched.email ? true : false} />
+            {formik.errors.email && formik.touched.email && <h1 className="text-red-600" >{formik.errors.email}</h1>}
+
+          </div>
 
           <div className="space-y-2">
             <h1>Select Your Gender</h1>
-            <Radio onChange={formik.handleChange} id="male" name="gender" label="Male" value="male" />
-            <Radio onChange={formik.handleChange} id="female" name="gender" label="Female" value="female" />
+            <Radio
+              onChange={formik.handleChange}
+              id="male"
+              name="gender"
+              label="Male"
+              value="male" />
+            <Radio
+              onChange={formik.handleChange}
+              id="female"
+              name="gender"
+              label="Female"
+              value="female" />
+            {formik.errors.gender && formik.touched.gender && <h1 className="text-red-600" >{formik.errors.gender}</h1>}
+
           </div>
 
 
           <div className="space-y-2">
             <h1>Select Your Hobbies</h1>
+
             {checkData.map((c, i) => {
-              return <Checkbox onChange={formik.handleChange} key={i} color={c.color} label={c.label} name="hobby" id={c.id} value={c.value} ></Checkbox>
+              return <Checkbox
+                onChange={formik.handleChange}
+                key={i}
+                color={c.color}
+                label={c.label}
+                name="hobby"
+                id={c.id}
+                value={c.value} >
+
+              </Checkbox>
               // return <Checkbox onChange={(e) => console.log(e.target.value)} key={i} color={c.color} label={c.label} name={c.name} id={c.id} value={c.value} ></Checkbox>
             })}
-
+            {formik.errors.hobby && formik.touched.hobby && <h1 className="text-red-600" > {formik.errors.hobby}</h1>}
           </div>
-
 
 
           <div className="space-y-2">
             <h1>Select Your Country</h1>
-            <Select label="Select Country" onChange={(e) => formik.setFieldValue('country', e)}>
+            <Select label="Select Country"
+              onChange={(e) => formik.setFieldValue('country', e)}>
               {/* <Select label="Select Country" onChange={(e) => {
                 console.log(e)
               }}> */}
@@ -94,10 +152,13 @@ const InfoForm = () => {
 
             </Select>
 
+            {formik.errors.country && formik.touched.country && <h1 className="text-red-600" >{formik.errors.country}</h1>}
+
           </div>
 
           <div >
             <Textarea name="msg" onChange={formik.handleChange} value={formik.values.msg} label="Message" />
+            {formik.errors.msg && formik.touched.msg && <h1 className="text-red-600" >{formik.errors.msg}</h1>}
           </div>
 
 
@@ -123,7 +184,12 @@ const InfoForm = () => {
                 formik.setFieldValue('preview', e.target.result);
               })
 
-            }} size="lg" name="image" label="Select Image" type="file" />
+            }}
+              size="lg"
+              name="image"
+              label="Select Image"
+              type="file" />
+            {formik.errors.image && formik.touched.image && <h1 className="text-red-600" >{formik.errors.image}</h1>}
           </div>
 
           {formik.values.preview && <img className="h-[200px]" src={formik.values.preview} alt="" />}
